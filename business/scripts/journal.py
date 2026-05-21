@@ -23,6 +23,11 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+if sys.platform != "win32":
+    import fcntl
+else:
+    fcntl = None  # type: ignore[assignment]
+
 HERMES_HOME = Path(os.environ.get("HERMES_HOME", Path.home() / ".hermes"))
 JOURNAL = HERMES_HOME / "business" / "journal"
 
@@ -41,17 +46,15 @@ def atomic_write(path: Path, content: str) -> None:
 def locked_append(path: Path, content: str) -> None:
     """Append with an exclusive fcntl lock so concurrent skills don't interleave."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        import fcntl  # POSIX only
-        with path.open("a") as f:
+    with path.open("a") as f:
+        if fcntl is not None:
             fcntl.flock(f.fileno(), fcntl.LOCK_EX)
             try:
                 f.write(content)
             finally:
                 fcntl.flock(f.fileno(), fcntl.LOCK_UN)
-    except ImportError:
-        # Windows fallback — best-effort, no locking.
-        with path.open("a") as f:
+        else:
+            # Windows fallback — best-effort, no locking.
             f.write(content)
 
 
