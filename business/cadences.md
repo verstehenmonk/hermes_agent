@@ -54,7 +54,8 @@
 **First Monday of new quarter — OKR review** (Email)
 - Score last quarter's three bets honestly (0–1 per bet).
 - Draft next quarter's three bets, pulling from open questions in the weekly journals.
-- Update `CHARTER.md` ("Three bets this quarter").
+- The agent does NOT edit `CHARTER.md`. The founder reads the draft and updates
+  the "Three bets this quarter" section by hand.
 
 **Quarterly — Compliance + legal check** (Email)
 - `legal` skill audits: contracts up for renewal, ToS/PP last reviewed, DPA requests fulfilled, SOC 2 evidence collected.

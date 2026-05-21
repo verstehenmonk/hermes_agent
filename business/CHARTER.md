@@ -8,7 +8,7 @@
 - **Company name:** _e.g. Acme AI_
 - **Legal entity:** _Delaware C-corp / LLC / sole prop_
 - **Founded:** _YYYY-MM_
-- **Founder & sole operator:** _your name, andtut123@gmail.com_
+- **Founder & sole operator:** _your name, your email_
 - **One-sentence pitch:** _<verb> for <who> so they can <outcome>._
 - **Stage:** _idea / pre-launch / paid beta / public launch / scaling_
 

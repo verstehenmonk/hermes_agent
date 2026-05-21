@@ -5,10 +5,15 @@ Deterministic metrics snapshot for the business operating system.
 Pulls live numbers from Stripe, Mercury, PostHog, Sentry, Linear, GitHub.
 Writes a single JSON blob the agent reads — so the agent never computes numbers.
 
+Always writes:
+  ~/.hermes/business/metrics/latest.json
+
+On the 1st of the month, also writes:
+  ~/.hermes/business/metrics/<YYYY-MM>.json   (the previous month, just closed)
+
 Usage:
-    metrics_snapshot.py            # daily snapshot to latest.json
-    metrics_snapshot.py --month-close   # full monthly snapshot to YYYY-MM.json
-    metrics_snapshot.py --verify   # print the snapshot to stdout instead of writing
+    metrics_snapshot.py            # write latest.json (+ monthly on month-start)
+    metrics_snapshot.py --verify   # print snapshot to stdout, do not write
 
 Degrades gracefully: if a tool's API key is missing, that section is marked
 "not_connected" and the rest of the snapshot still runs.
@@ -23,12 +28,14 @@ import sys
 import urllib.request
 import urllib.error
 from datetime import datetime, timedelta, timezone
+from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 from typing import Any
 
 HERMES_HOME = Path(os.environ.get("HERMES_HOME", Path.home() / ".hermes"))
 OUT_DIR = HERMES_HOME / "business" / "metrics"
 TIMEOUT = 15
+STRIPE_PAGE_LIMIT = 100
 
 
 def _http_json(url: str, headers: dict[str, str], data: bytes | None = None) -> dict[str, Any]:
@@ -46,41 +53,72 @@ def _get(url: str, *, auth: str | None = None, bearer: str | None = None) -> dic
     return _http_json(url, headers)
 
 
+def _stripe_paginate(base_url: str, key: str, max_pages: int = 50):
+    """Yield every item across Stripe's cursor pagination."""
+    sep = "&" if "?" in base_url else "?"
+    next_cursor: str | None = None
+    pages = 0
+    while pages < max_pages:
+        url = f"{base_url}{sep}limit={STRIPE_PAGE_LIMIT}"
+        if next_cursor:
+            url += f"&starting_after={next_cursor}"
+        resp = _get(url, bearer=key)
+        data = resp.get("data", []) or []
+        for item in data:
+            yield item
+        if not resp.get("has_more"):
+            return
+        next_cursor = data[-1]["id"] if data else None
+        if not next_cursor:
+            return
+        pages += 1
+
+
+def _item_monthly_cents(item: dict[str, Any]) -> int:
+    """Normalize a Stripe subscription item's price+quantity to monthly cents.
+
+    Uses Decimal throughout to avoid the truncation bug from float math on
+    annual plans divided by 12.
+    """
+    price = item.get("price") or {}
+    unit = Decimal(price.get("unit_amount") or 0)
+    interval = (price.get("recurring") or {}).get("interval")
+    interval_count = Decimal((price.get("recurring") or {}).get("interval_count") or 1)
+    qty = Decimal(item.get("quantity") or 1)
+    amount = unit * qty
+    if interval == "year":
+        amount = amount / (Decimal(12) * interval_count)
+    elif interval == "week":
+        amount = amount * (Decimal(52) / Decimal(12) / interval_count)
+    elif interval == "day":
+        amount = amount * (Decimal(365) / Decimal(12) / interval_count)
+    elif interval == "month":
+        amount = amount / interval_count
+    return int(amount.quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+
+
 def section_stripe() -> dict[str, Any]:
     key = os.environ.get("STRIPE_API_KEY")
     if not key:
         return {"status": "not_connected"}
     try:
-        subs = _get(
-            "https://api.stripe.com/v1/subscriptions?status=active&limit=100",
-            bearer=key,
-        )
         mrr_cents = 0
         active = 0
-        for s in subs.get("data", []):
+        for sub in _stripe_paginate(
+            "https://api.stripe.com/v1/subscriptions?status=active",
+            key,
+        ):
             active += 1
-            for item in s.get("items", {}).get("data", []):
-                price = item.get("price") or {}
-                unit = price.get("unit_amount") or 0
-                interval = (price.get("recurring") or {}).get("interval")
-                qty = item.get("quantity") or 1
-                amount = unit * qty
-                if interval == "year":
-                    amount = amount / 12
-                elif interval == "week":
-                    amount = amount * (52 / 12)
-                elif interval == "day":
-                    amount = amount * (365 / 12)
-                mrr_cents += int(amount)
+            for item in (sub.get("items") or {}).get("data") or []:
+                mrr_cents += _item_monthly_cents(item)
 
         since = int((datetime.now(timezone.utc) - timedelta(hours=24)).timestamp())
-        events = _get(
-            f"https://api.stripe.com/v1/events?created[gte]={since}&limit=100",
-            bearer=key,
-        )
         failed = 0
         refunded_cents = 0
-        for ev in events.get("data", []):
+        for ev in _stripe_paginate(
+            f"https://api.stripe.com/v1/events?created[gte]={since}",
+            key,
+        ):
             t = ev.get("type", "")
             obj = (ev.get("data") or {}).get("object") or {}
             if t == "invoice.payment_failed":
@@ -91,6 +129,7 @@ def section_stripe() -> dict[str, Any]:
         return {
             "status": "ok",
             "mrr_usd": round(mrr_cents / 100, 2),
+            "mrr_cents": mrr_cents,
             "active_subscriptions": active,
             "failed_payments_24h": failed,
             "refunded_24h_usd": round(refunded_cents / 100, 2),
@@ -126,19 +165,41 @@ def section_posthog() -> dict[str, Any]:
     if not key or not project:
         return {"status": "not_connected"}
     try:
-        url = f"{host}/api/projects/{project}/insights/trend"
+        url = f"{host}/api/projects/{project}/insights/trend/"
         headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
-        payload = json.dumps({
+        # DAU of core action over last 7 days.
+        dau_payload = json.dumps({
             "events": [{"id": "core_action_completed", "math": "dau"}],
             "date_from": "-7d",
             "interval": "day",
         }).encode()
-        data = _http_json(url, headers, payload)
-        series = (data.get("result") or [{}])[0].get("data") or []
+        dau = _http_json(url, headers, dau_payload)
+        dau_series = (dau.get("result") or [{}])[0].get("data") or []
+
+        # WAU on workspace_id property — this matches the WAW definition in
+        # business/north-star.md.
+        waw_payload = json.dumps({
+            "events": [{
+                "id": "core_action_completed",
+                "math": "unique_group",
+                "math_group_type_index": 0,
+            }],
+            "date_from": "-7d",
+            "interval": "week",
+            "breakdown": "workspace_id",
+        }).encode()
+        try:
+            waw_resp = _http_json(url, headers, waw_payload)
+            waw_series = (waw_resp.get("result") or [{}])[0].get("data") or []
+            waw = int(waw_series[-1]) if waw_series else 0
+        except Exception:
+            waw = None
+
         return {
             "status": "ok",
-            "core_actions_7d": series,
-            "core_actions_7d_total": int(sum(series)),
+            "core_actions_7d": dau_series,
+            "core_actions_7d_total": int(sum(dau_series)),
+            "waw": waw,
         }
     except Exception as e:  # noqa: BLE001
         return {"status": "error", "detail": f"posthog: {e!r}"}
@@ -270,14 +331,22 @@ def runway_months(snapshot: dict[str, Any]) -> float | None:
     return round(cash / avg_burn, 1) if avg_burn > 0 else None
 
 
+def _atomic_write(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(content)
+    os.replace(tmp, path)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--month-close", action="store_true")
     parser.add_argument("--verify", action="store_true")
     args = parser.parse_args()
 
+    now = datetime.now(timezone.utc)
+
     snapshot: dict[str, Any] = {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": now.isoformat(),
         "stripe": section_stripe(),
         "mercury": section_mercury(),
         "posthog": section_posthog(),
@@ -298,17 +367,19 @@ def main() -> int:
     if rw is not None:
         snapshot["runway_months"] = rw
 
+    payload = json.dumps(snapshot, indent=2, default=str)
+
     if args.verify:
-        json.dump(snapshot, sys.stdout, indent=2, default=str)
-        sys.stdout.write("\n")
+        sys.stdout.write(payload + "\n")
         return 0
 
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    prev_path.write_text(json.dumps(snapshot, indent=2, default=str))
+    _atomic_write(prev_path, payload)
 
-    if args.month_close:
-        ym = datetime.now(timezone.utc).strftime("%Y-%m")
-        (OUT_DIR / f"{ym}.json").write_text(json.dumps(snapshot, indent=2, default=str))
+    # On the 1st of the month, also archive yesterday's snapshot under the
+    # previous month's key — that's the month we just closed.
+    if now.day == 1:
+        prev_month = (now.replace(day=1) - timedelta(days=1)).strftime("%Y-%m")
+        _atomic_write(OUT_DIR / f"{prev_month}.json", payload)
 
     print(f"wrote {prev_path}", file=sys.stderr)
     return 0

@@ -5,8 +5,11 @@ the document you'd send to a board if you had one.
 
 ## Sequence
 
-1. `scripts/metrics_snapshot.py --month-close` — pulls 30 days of Stripe, Mercury,
-   PostHog, Linear, GitHub into `~/.hermes/business/metrics/<YYYY-MM>.json`.
+1. On the 1st of the month, `metrics_snapshot.py` automatically archives the
+   day's snapshot into `~/.hermes/business/metrics/<YYYY-MM>.json` keyed to
+   the month that just closed. The snapshot is point-in-time (not a 30-day
+   roll-up); for trend reasoning the close compares this archive to the
+   previous month's archive in the same directory.
 2. `finance` skill drafts the MRR walk + cash + runway section.
 3. `product` skill drafts retention cohorts + feature adoption section.
 4. `engineering` skill drafts incidents + SLO compliance section.
@@ -83,4 +86,7 @@ DECISIONS WORTH RE-EXAMINING
 2. **The narrative is the most important part.** Numbers are easy; explaining them well is hard. Write it last, when you've read everything.
 3. **No corporate-speak.** Plain English, calibrated language, real numbers.
 4. **If a number is missing because a tool isn't connected**, say so. Don't paper over.
-5. **Decisions to re-examine**: pull from `~/.hermes/business/journal/decisions.md`, filter to entries with a `review_date` ≤ today.
+5. **Decisions to re-examine**: pull from `~/.hermes/business/journal/decisions.md`,
+   filter to entries whose `review_by:` line is ≤ today. (Each decision entry
+   that was logged with `--review-in N` carries a machine-readable
+   `review_by: YYYY-MM-DD` line for this purpose.)

@@ -43,8 +43,8 @@ When a meeting request lands:
 ## Notion (SOPs, vendor registry, decisions log)
 
 ```bash
-# Query the vendor database
-curl -s -X POST "https://api.notion.com/v1/databases/$VENDOR_DB_ID/query" \
+# Query the vendor data source (Notion 2025-09-03 renamed databases → data sources)
+curl -s -X POST "https://api.notion.com/v1/data_sources/$VENDOR_DATA_SOURCE_ID/query" \
   -H "Authorization: Bearer $NOTION_API_KEY" -H "Notion-Version: 2025-09-03" \
   -H "Content-Type: application/json" -d '{}'
 

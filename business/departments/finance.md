@@ -23,20 +23,31 @@ and reserve human time for tax decisions and pricing changes.
 
 ## Daily check (deterministic via `scripts/metrics_snapshot.py`)
 
+The script writes `~/.hermes/business/metrics/latest.json`. The relevant keys
+the finance skill reads are:
+
 ```
 {
-  "cash_on_hand": <Mercury all accounts sum>,
-  "mrr": <Stripe MRR>,
-  "mrr_delta_24h": <change from yesterday>,
-  "failed_payments_24h": <count + total $>,
-  "active_subscriptions": <count>,
-  "trial_to_paid_24h": <count>,
-  "refunds_issued_24h": <count + total $>
+  "stripe": {
+    "mrr_usd": <Stripe MRR in dollars>,
+    "active_subscriptions": <count>,
+    "failed_payments_24h": <count>,
+    "refunded_24h_usd": <dollars>
+  },
+  "mercury": {
+    "cash_usd": <all accounts sum, dollars>,
+    "account_count": <count>
+  },
+  "deltas": {
+    "mrr_delta_usd": <today − yesterday, dollars>,
+    "cash_delta_usd": <today − yesterday, dollars>
+  },
+  "runway_months": <cash / 3-mo rolling burn>
 }
 ```
 
-If `mrr_delta_24h < 0` or `failed_payments_24h > 0`, the finance skill investigates
-before the morning brief lands.
+If `deltas.mrr_delta_usd < 0` or `stripe.failed_payments_24h > 0`, the
+finance skill investigates before the morning brief lands.
 
 ## Monthly close playbook
 

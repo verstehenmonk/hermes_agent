@@ -11,30 +11,31 @@ Runs weekdays at 07:30 local. Cron job calls the `ceo` skill with this prompt.
 
 ## Output (Telegram message + journal file)
 
-```
-☤ Morning brief · {weekday} {date}
+Plain text, no markdown rendering tricks, no emojis. Section headers in CAPS.
+Shape:
 
-NUMBERS
-  MRR     $X (Δ +$Y, +Z% / day)
-  WAW     N  (Δ +M / week)
-  Errors  N events · 0.X% rate
-  Cash    $X  ·  Runway: N months
+    Morning brief - {weekday} {date}
 
-NEEDS YOU
-  1. {single sentence on what needs founder judgment, with link}
-  2. ...
-  3. ...
-  (nothing else needs you — N items routed/drafted, see /inbox)
+    NUMBERS
+      MRR     $X (delta +$Y, +Z% / day)
+      WAW     N  (delta +M / week)
+      Errors  N events / 0.X% rate
+      Cash    $X  /  Runway: N months
 
-TODAY
-  → {priority 1, tied to a quarter bet}
-  → {priority 2}
-  → {priority 3}
+    NEEDS YOU
+      1. {single sentence on what needs founder judgment, with link}
+      2. ...
+      3. ...
+      (nothing else needs you - N items routed/drafted, see /inbox)
 
-HEADS UP
-  {one sentence on something brewing — could be a metric trend,
-   a customer at risk, a deadline approaching}
-```
+    TODAY
+      - {priority 1, tied to a quarter bet}
+      - {priority 2}
+      - {priority 3}
+
+    HEADS UP
+      {one sentence on something brewing - could be a metric trend,
+       a customer at risk, a deadline approaching}
 
 If everything's quiet, the message is shorter. Be calibrated, don't pad.
 

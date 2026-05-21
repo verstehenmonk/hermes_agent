@@ -11,6 +11,9 @@ that performed ≥1 core action in the last 7 days.
 
 - Why this: it leads revenue by ~30 days and is hard to game.
 - Source: PostHog event `core_action_completed`, deduped by `workspace_id`.
+- Computed by `scripts/metrics_snapshot.py` using a `unique_group` math
+  aggregation on the `workspace_id` PostHog group type. Result exposed at
+  `posthog.waw` in `~/.hermes/business/metrics/latest.json`.
 - Current: _filled by metrics_snapshot.py_
 - 90-day target: _your number_
 

@@ -68,7 +68,8 @@ When `invoice.payment_failed` fires:
 
 ## Monthly close (runs from cron)
 
-1. `metrics_snapshot.py --month-close` writes the JSON snapshot.
+1. `metrics_snapshot.py` (run by cron on the 1st of the month) writes both
+   `latest.json` and the archived `<YYYY-MM>.json` for the month just closed.
 2. Categorize Mercury transactions for the month:
    - Revenue, infra (Vercel/AWS), software (the vendor list), payroll, founder draw, taxes.
    - Flag uncategorized > $100.

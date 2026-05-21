@@ -1,41 +1,56 @@
 # Declarative webhook subscriptions for the business operating system.
-# Apply with: business/install.sh — each entry becomes a `hermes webhook subscribe` call.
+# Apply with: business/install.sh
+#
+# Notes:
+# - `hermes webhook subscribe` accepts a single comma-separated `--events`
+#   string and a single comma-separated `--skills` string. There are no
+#   --source / --filter flags; route ergonomics live inside the prompt.
+# - For PR comments, deliver via `--deliver telegram` (and post the comment
+#   from inside the skill using the gh CLI); there is no `deliver: github`
+#   target.
+# - Prompt placeholders use {dot.notation} against the raw payload. We bind
+#   to the documented Stripe / GitHub / Linear / Cal payload shapes.
 
 webhooks:
 
   - name: "stripe-failed-payment"
-    source: "stripe"
     events: ["invoice.payment_failed", "charge.dispute.created"]
     prompt: |
-      Stripe event: {event.type}
+      Stripe event: {type}
       Customer: {data.object.customer}
-      Amount: {data.object.amount}
+      Amount due (cents): {data.object.amount_due}
+      Amount remaining (cents): {data.object.amount_remaining}
+      Dispute amount (cents, if dispute): {data.object.amount}
 
       Run the finance skill's failed-payment playbook:
       1. Look up the customer in Stripe + Attio.
-      2. Attempt retry once via Stripe.
+      2. Attempt retry once via Stripe (only for invoice.payment_failed).
       3. If still failed, draft a personal email from founder to customer.
-      4. If amount > $X (see CHARTER spending authority), page founder on Telegram.
+      4. If amount > CHARTER spending authority, page founder on Telegram.
       Log to ~/.hermes/business/journal/finance/payment-failures.md
     skills: ["finance", "customer-success"]
     deliver: "telegram"
 
   - name: "stripe-churn"
-    source: "stripe"
     events: ["customer.subscription.deleted"]
     prompt: |
-      Subscription cancelled: customer {data.object.customer}, plan {data.object.plan.nickname}.
+      Subscription cancelled: customer {data.object.customer},
+      subscription {data.object.id}.
+
       Run the customer-success churn playbook:
-      1. Pull last 90d of the customer's events from PostHog and tickets from Plain.
-      2. Categorize the likely reason.
-      3. Draft a thoughtful exit-interview email (from founder, not templated).
-      4. Add to churn log via journal.py decision --title "churn: {customer name}".
+      1. Pull the subscription's items+price details via Stripe to identify
+         the plan (data.object.items.data[0].price.id / .nickname).
+      2. Pull last 90d of the customer's events from PostHog and tickets from Plain.
+      3. Categorize the likely reason.
+      4. Draft a thoughtful exit-interview email (from founder, not templated).
+      5. Append to the churn log:
+         ~/.hermes/scripts/business/journal.py decision \
+           --title "churn: {data.object.customer}" --review-in 60
     skills: ["customer-success", "product"]
     deliver: "telegram"
 
   - name: "sentry-error-spike"
-    source: "sentry"
-    events: ["issue.alert"]
+    events: ["event_alert", "issue_alert"]
     prompt: |
       Sentry alert: {data.issue.title}
       Project: {data.project.name}  Level: {data.issue.level}
@@ -50,49 +65,52 @@ webhooks:
     deliver: "telegram"
 
   - name: "github-pr-opened"
-    source: "github"
-    events: ["pull_request.opened", "pull_request.reopened"]
+    events: ["pull_request"]
     prompt: |
+      Only act when {action} is "opened" or "reopened" — otherwise respond [SILENT].
+
       PR #{pull_request.number} by {pull_request.user.login}: {pull_request.title}
+      Repo: {repository.full_name}
 
       Engineering review:
       1. Check the diff against the engineering brief's tech principles.
       2. Reject auto-merge if it touches auth, billing, or migrations — surface for human review.
       3. Suggest improvements. Do NOT block on style.
-      4. Run tests via gh CLI if possible.
-      Post review comment on the PR.
+      4. Run tests via `gh pr checks {pull_request.number}` if available.
+      5. Post the review comment by shelling out to:
+           gh pr review {pull_request.number} -R {repository.full_name} \
+             --comment -b "<your review>"
     skills: ["engineering"]
-    deliver: "github"
+    deliver: "telegram"
 
   - name: "linear-customer-blocker"
-    source: "linear"
     events: ["Issue"]
-    filter: 'data.labels[*].name == "customer-blocker"'
     prompt: |
-      Linear issue labelled customer-blocker: {data.title}
-      URL: {data.url}
+      Linear issue event. Only act when the issue carries the "customer-blocker"
+      label (check {data.labels[*].name}). If it doesn't, respond [SILENT].
+
+      Title: {data.title}
+      URL:   {data.url}
 
       Page founder with: customer name, what they can't do, suggested fix or owner.
     skills: ["customer-success", "engineering"]
     deliver: "telegram"
 
   - name: "cal-booking-created"
-    source: "cal"
     events: ["BOOKING_CREATED"]
     prompt: |
-      New booking with {attendees[0].email} on {start_time}.
+      New booking with {payload.attendees[0].email} on {payload.startTime}.
 
       Sales pre-brief:
       1. Look up the attendee's company in Attio. Enrich via public sources if unknown.
       2. Pull any prior interactions (Plain tickets, emails, content reads in PostHog).
       3. Score against the sales qualification rubric.
       4. Draft a one-page demo plan: what to show, what to ask, where they probably are in the buying cycle.
-      5. Send the pre-brief to the founder's email 30 min before the call.
+      5. Email the brief to the founder 30 min before the call.
     skills: ["sales"]
     deliver: "email"
 
   - name: "posthog-new-paid-signup"
-    source: "posthog"
     events: ["subscription_started"]
     prompt: |
       New paid signup: workspace {properties.workspace_id} on {properties.plan}.
@@ -106,11 +124,12 @@ webhooks:
     deliver: "telegram"
 
   - name: "plain-support-p1"
-    source: "plain"
     events: ["thread.created", "thread.updated"]
-    filter: 'data.priority == "P1"'
     prompt: |
-      P1 support thread from {data.customer.email}: {data.title}
+      Plain thread event. Only act when {data.priority} == "P1" — otherwise
+      respond [SILENT].
+
+      From: {data.customer.email}  Title: {data.title}
 
       Read the CS brief's triage rubric. Acknowledge to customer in < 10 min,
       open a Linear issue with customer-blocker label if engineering-needed,

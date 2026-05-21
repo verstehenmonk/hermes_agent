@@ -3,14 +3,15 @@
 Journal utility — append entries to the decisions / incidents / standup logs.
 
 Used by skills via `journal.py <kind> [--review-in DAYS] -` where stdin is the
-entry body. Keeps writes consistent and atomic.
+entry body. Writes are atomic (write-temp + os.replace) for one-shot files and
+fcntl-locked for append-only logs.
 
 Kinds:
-  decision    - append to journal/decisions.md
-  incident    - append to journal/incidents/<date>-<slug>.md
-  standup     - write journal/<date>-standup.md
-  weekly      - write journal/<YYYY-Www>-weekly.md
-  monthly     - write journal/finance/<YYYY-MM>.md
+  decision    - append to journal/decisions.md (fcntl-locked append)
+  incident    - write journal/incidents/<date>-<slug>.md (atomic)
+  standup     - write journal/<date>-standup.md (atomic)
+  weekly      - write journal/<YYYY-Www>-weekly.md (atomic)
+  monthly     - write journal/finance/<YYYY-MM>.md (atomic)
 """
 
 from __future__ import annotations
@@ -28,6 +29,30 @@ JOURNAL = HERMES_HOME / "business" / "journal"
 
 def slugify(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:48] or "untitled"
+
+
+def atomic_write(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(content)
+    os.replace(tmp, path)
+
+
+def locked_append(path: Path, content: str) -> None:
+    """Append with an exclusive fcntl lock so concurrent skills don't interleave."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        import fcntl  # POSIX only
+        with path.open("a") as f:
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+            try:
+                f.write(content)
+            finally:
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+    except ImportError:
+        # Windows fallback — best-effort, no locking.
+        with path.open("a") as f:
+            f.write(content)
 
 
 def main() -> int:
@@ -51,37 +76,35 @@ def main() -> int:
         review_line = ""
         if args.review_in:
             review_date = (now + timedelta(days=args.review_in)).strftime("%Y-%m-%d")
-            review_line = f"\n_review by {review_date}_"
-        entry = f"\n## {today} — {args.title or 'decision'}\n\n{body.strip()}\n{review_line}\n"
-        with path.open("a") as f:
-            f.write(entry)
+            # Machine-readable; rituals grep for ^review_by:.
+            review_line = f"\nreview_by: {review_date}\n"
+        entry = f"\n## {today} — {args.title or 'decision'}\n\n{body.strip()}\n{review_line}"
+        locked_append(path, entry)
         print(str(path))
         return 0
 
     if args.kind == "incident":
-        (JOURNAL / "incidents").mkdir(parents=True, exist_ok=True)
         path = JOURNAL / "incidents" / f"{today}-{slugify(args.title)}.md"
-        path.write_text(f"# Incident: {args.title}\n\n_Started {now.isoformat()}_\n\n{body.strip()}\n")
+        atomic_write(path, f"# Incident: {args.title}\n\n_Started {now.isoformat()}_\n\n{body.strip()}\n")
         print(str(path))
         return 0
 
     if args.kind == "standup":
         path = JOURNAL / f"{today}-standup.md"
-        path.write_text(body)
+        atomic_write(path, body)
         print(str(path))
         return 0
 
     if args.kind == "weekly":
         iso_year, iso_week, _ = now.isocalendar()
         path = JOURNAL / f"{iso_year}-W{iso_week:02d}-weekly.md"
-        path.write_text(body)
+        atomic_write(path, body)
         print(str(path))
         return 0
 
     if args.kind == "monthly":
-        (JOURNAL / "finance").mkdir(parents=True, exist_ok=True)
         path = JOURNAL / "finance" / f"{now.strftime('%Y-%m')}.md"
-        path.write_text(body)
+        atomic_write(path, body)
         print(str(path))
         return 0
 
