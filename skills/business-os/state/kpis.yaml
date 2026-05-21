@@ -1,0 +1,96 @@
+# Current values and targets. The agent reads this every brief.
+# Updated daily by scripts/morning_brief.py (auto) plus manual entries.
+last_updated: "2026-05-21"
+
+revenue:
+  mrr:
+    current: 4800
+    target_eom: 5500
+    target_12mo: 30000
+  arr:
+    current: 57600
+    target_12mo: 360000
+  new_mrr_this_month:
+    current: 700
+    target: 1500
+  churn_mrr_this_month:
+    current: 96
+    target_ceiling: 100
+  nrr_90d:
+    current: 1.04
+    target: 1.05
+  acv:
+    current: 14400
+    target: 16000
+
+customers:
+  paid: 7
+  trials_active: 12
+  trials_to_paid_30d: 0.18
+  target_trials_to_paid: 0.22
+  top_account_concentration: 0.21
+  target_max_concentration: 0.20
+
+unit_economics:
+  cac_last_90d: 1800
+  ltv_90d_cohort: 32000
+  payback_months: 9
+  gross_margin: 0.78
+  target_gross_margin: 0.82
+  inference_cost_per_customer_per_month: 38
+  target_inference_cost_ceiling: 50
+
+cash:
+  bank_balance: 142000
+  monthly_burn: 6400
+  runway_months: 22
+  ar_outstanding: 1200
+  ar_aged_30plus: 0
+
+product:
+  weekly_active_insight_recipients: 89
+  target_wair_eom: 120
+  time_to_first_insight_p50_min: 14
+  target_ttfi_p50_min: 10
+  daily_nl_queries: 412
+  uptime_30d: 0.997
+  error_rate_24h: 0.003
+  p95_latency_ms: 920
+  target_p95_latency_ms: 800
+
+marketing:
+  organic_traffic_30d: 4200
+  newsletter_subscribers: 380
+  social_followers_total: 1240
+  blog_posts_published_this_month: 5
+  target_blog_per_month: 8
+
+sales:
+  pipeline_total: 84000
+  pipeline_qualified: 36000
+  demos_scheduled_this_week: 4
+  demos_held_this_week: 3
+  win_rate_90d: 0.34
+  target_win_rate: 0.40
+
+engineering:
+  open_prs: 3
+  prs_merged_7d: 11
+  prs_awaiting_review: 1
+  error_budget_consumed_pct: 28
+  open_p0_p1_bugs: 0
+  tech_debt_items: 47
+
+operations:
+  open_runbooks_to_review: 2
+  vendor_count: 18
+  monthly_vendor_spend: 4100
+
+customer_service:
+  open_tickets: 5
+  median_first_response_min: 22
+  target_first_response_min: 30
+  nps_last_quarter: 41
+  health_red: 1
+  health_yellow: 2
+  health_green: 4

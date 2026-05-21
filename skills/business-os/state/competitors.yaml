@@ -1,0 +1,44 @@
+version: 1
+last_updated: "2026-05-21"
+
+direct:
+  - name: Mixpanel
+    url: https://mixpanel.com
+    changelog_url: https://mixpanel.com/changelog
+    pricing_url: https://mixpanel.com/pricing
+    threat_level: high
+    overlap: "We replace them for teams that hate writing reports and want narrative."
+
+  - name: Amplitude
+    url: https://amplitude.com
+    changelog_url: https://amplitude.com/releases
+    pricing_url: https://amplitude.com/pricing
+    threat_level: high
+    overlap: "Bigger, slower. We win on speed-to-insight and AI-native UI."
+
+  - name: PostHog
+    url: https://posthog.com
+    changelog_url: https://posthog.com/changelog
+    pricing_url: https://posthog.com/pricing
+    threat_level: medium
+    overlap: "Open source, dev-led. We win at product/growth team buyer, not eng buyer."
+
+adjacent:
+  - name: Hex
+    url: https://hex.tech
+    threat_level: medium
+    overlap: "Notebooks-first. They want technical users; we want non-technical."
+
+  - name: Equals
+    url: https://equals.com
+    threat_level: low
+    overlap: "Spreadsheet-first. Different metaphor; lower ceiling."
+
+  - name: Mode (acquired by ThoughtSpot)
+    url: https://mode.com
+    threat_level: low
+    overlap: "SQL-first BI tool. Adjacent but for BI analysts, not product teams."
+
+new_entrants_watch:
+  - name: Various AI-BI startups (track new YC batches)
+    note: "Most launch with 'NL to SQL' demo, struggle on accuracy. Monitor quarterly."

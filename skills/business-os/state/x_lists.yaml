@@ -1,0 +1,32 @@
+version: 1
+last_updated: "2026-05-21"
+# X / Twitter accounts to monitor for content ideas + community engagement.
+
+operators_to_follow:
+  - "@jasonlk"        # founder advice, SaaS GTM
+  - "@levelsio"       # solo SaaS economics
+  - "@dharmesh"       # HubSpot, B2B SaaS
+  - "@brianbalfour"   # growth at scale
+  - "@hnshah"         # SaaS metrics + product
+  - "@patticus"       # pricing strategy
+
+ai_analytics_people:
+  - "@karpathy"
+  - "@simonw"         # data + LLM thinking
+  - "@swyx"
+  - "@latentspacepod"
+
+prospects_segment:
+  - "Heads of Product at YC W26 batch"
+  - "VP Product at recently-funded Series B B2B SaaS"
+  - "Founders posting 'we missed the quarter'"
+
+mining_rules:
+  signal_strong:
+    - "anyone using $tool for product analytics?"
+    - "how do you measure $metric?"
+    - "we just hired a $title"
+    - "we missed our $period target"
+  signal_avoid:
+    - threads with >500 replies (drowned out)
+    - posts older than 48h (window closed)

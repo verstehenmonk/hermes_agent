@@ -1,0 +1,45 @@
+version: 1
+last_updated: "2026-05-21"
+
+pillar_keywords:
+  - keyword: "ai product analytics"
+    target_position: 5
+    intent: commercial
+    pillar_page: "/ai-product-analytics"
+
+  - keyword: "natural language analytics for saas"
+    target_position: 10
+    intent: commercial
+    pillar_page: "/natural-language-analytics"
+
+  - keyword: "mixpanel alternative ai"
+    target_position: 5
+    intent: commercial-comparison
+    pillar_page: "/mixpanel-alternative"
+
+  - keyword: "amplitude alternative ai"
+    target_position: 5
+    intent: commercial-comparison
+    pillar_page: "/amplitude-alternative"
+
+  - keyword: "b2b saas product analytics"
+    target_position: 10
+    intent: commercial
+    pillar_page: "/b2b-saas-product-analytics"
+
+long_tail:
+  - "how to predict churn b2b saas"
+  - "weekly mrr report template"
+  - "product analytics without data engineer"
+  - "what is north star metric saas"
+  - "cohort retention analysis tutorial"
+  - "feature adoption metrics b2b"
+  - "product qualified lead definition"
+  - "saas activation rate benchmark"
+  - "stripe revenue analytics"
+  - "segment events to analytics"
+
+tracking:
+  rank_check_cadence: weekly
+  alert_on_drop: 3
+  refresh_quarterly: true

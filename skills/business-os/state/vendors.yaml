@@ -1,0 +1,129 @@
+version: 1
+last_updated: "2026-05-21"
+# Vendor inventory. Maintained by business-os-operations skill + manual edits.
+
+vendors:
+  # Infrastructure
+  - name: AWS
+    category: infra-compute
+    monthly_cost: 320
+    criticality: P0
+    status_url: https://health.aws.amazon.com/health/status
+    contract_end: rolling
+    dpa_signed: true
+
+  - name: Cloudflare
+    category: infra-network
+    monthly_cost: 20
+    criticality: P0
+    status_url: https://www.cloudflarestatus.com
+    contract_end: rolling
+    dpa_signed: true
+
+  - name: Supabase
+    category: infra-database
+    monthly_cost: 99
+    criticality: P0
+    status_url: https://status.supabase.com
+    contract_end: rolling
+    dpa_signed: true
+
+  # AI inference
+  - name: OpenRouter
+    category: ai-inference
+    monthly_cost: 640
+    criticality: P0
+    status_url: https://status.openrouter.ai
+    contract_end: rolling
+    dpa_signed: false
+    notes: "Multi-provider gateway. Cheaper than direct provider for our routing pattern."
+
+  # Data
+  - name: Segment
+    category: data-pipeline
+    monthly_cost: 0
+    criticality: P1
+    status_url: https://status.segment.com
+    notes: "On free tier for own analytics; not in customer path."
+
+  # Payments
+  - name: Stripe
+    category: payments-processor
+    monthly_cost: 0
+    criticality: P0
+    status_url: https://status.stripe.com
+    notes: "% take rate, no flat fee."
+
+  # Banking
+  - name: Mercury
+    category: banking
+    monthly_cost: 0
+    criticality: P0
+    status_url: https://status.mercury.com
+
+  # Sales
+  - name: Apollo
+    category: sales-enrichment
+    monthly_cost: 79
+    criticality: P2
+    contract_end: 2026-08-01
+    notes: "Renewal in 2 months — negotiate."
+
+  - name: HubSpot
+    category: sales-crm
+    monthly_cost: 50
+    criticality: P1
+    contract_end: rolling
+
+  # Marketing
+  - name: Resend
+    category: marketing-email
+    monthly_cost: 20
+    criticality: P1
+    status_url: https://resend-status.com
+    dpa_signed: true
+
+  - name: Ghost
+    category: marketing-cms
+    monthly_cost: 25
+    criticality: P2
+
+  - name: Ahrefs
+    category: marketing-seo
+    monthly_cost: 99
+    criticality: P3
+
+  # Support
+  - name: Intercom
+    category: support-tool
+    monthly_cost: 99
+    criticality: P1
+    status_url: https://www.intercomstatus.com
+    dpa_signed: true
+
+  # Ops / dev
+  - name: GitHub
+    category: ops-source-control
+    monthly_cost: 21
+    criticality: P0
+    status_url: https://www.githubstatus.com
+
+  - name: Linear
+    category: ops-productivity
+    monthly_cost: 16
+    criticality: P1
+    status_url: https://status.linear.app
+
+  - name: 1Password
+    category: ops-security
+    monthly_cost: 8
+    criticality: P0
+
+  # Finance
+  - name: QuickBooks (via accountant)
+    category: finance-accounting
+    monthly_cost: 60
+    criticality: P2
+
+# Cancel-watch: vendors with <5 uses last 30 days
+cancel_watch: []

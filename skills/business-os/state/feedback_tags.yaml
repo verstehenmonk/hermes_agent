@@ -1,0 +1,65 @@
+version: 1
+last_updated: "2026-05-21"
+# Controlled vocabulary for customer-feedback classification.
+# When in doubt, the agent picks the most-specific tag. New tags require founder approval.
+
+themes:
+  - id: nl_accuracy
+    label: "NL query accuracy"
+    description: "Customer reported the NL→SQL result was wrong or misleading"
+    routes_to: product
+    severity_default: high
+
+  - id: onboarding_friction
+    label: "Onboarding friction"
+    description: "Customer struggled in trial setup; couldn't get to first insight"
+    routes_to: product
+    severity_default: high
+
+  - id: dashboard_request
+    label: "Dashboard / report feature request"
+    description: "Customer wants a specific chart / report type"
+    routes_to: product
+    severity_default: medium
+
+  - id: integration_missing
+    label: "Missing integration"
+    description: "Customer wants us to connect to a data source we don't support"
+    routes_to: product
+    severity_default: medium
+
+  - id: pricing_concern
+    label: "Pricing concern"
+    description: "Customer pushed back on pricing, packaging, or limits"
+    routes_to: sales
+    severity_default: high
+
+  - id: performance_slow
+    label: "Performance / speed"
+    description: "Customer reported slow query, slow page, timeout"
+    routes_to: engineering
+    severity_default: high
+
+  - id: bug
+    label: "Bug"
+    description: "Defect in the product"
+    routes_to: engineering
+    severity_default: high
+
+  - id: security_question
+    label: "Security / compliance question"
+    description: "Customer asked about SOC2, encryption, data residency, DPA"
+    routes_to: operations
+    severity_default: medium
+
+  - id: positive_signal
+    label: "Positive signal"
+    description: "Praise, testimonial, willingness to refer"
+    routes_to: marketing
+    severity_default: low
+
+  - id: churn_signal
+    label: "Churn signal"
+    description: "Customer mentioned leaving, downgrading, or evaluating alternatives"
+    routes_to: customer-service
+    severity_default: critical

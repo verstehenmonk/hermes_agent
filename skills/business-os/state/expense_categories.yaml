@@ -1,0 +1,74 @@
+version: 1
+last_updated: "2026-05-21"
+# Mapping rules: substring → category. First match wins (case-insensitive).
+# Used by scripts/finance_pulse.py to categorize bank transactions.
+
+rules:
+  # Infrastructure
+  - match: ["aws", "amazon web services"]
+    category: infra-compute
+  - match: ["vercel", "netlify", "fly.io", "render"]
+    category: infra-hosting
+  - match: ["cloudflare"]
+    category: infra-network
+  - match: ["supabase", "neon", "planetscale", "mongodb atlas"]
+    category: infra-database
+
+  # AI / LLM
+  - match: ["openai", "anthropic", "openrouter", "fireworks", "together ai", "groq", "nousresearch"]
+    category: ai-inference
+  - match: ["pinecone", "weaviate", "chroma"]
+    category: ai-vector-db
+
+  # Data
+  - match: ["segment", "rudderstack", "snowplow"]
+    category: data-pipeline
+  - match: ["snowflake", "bigquery", "databricks"]
+    category: data-warehouse
+
+  # Sales / Marketing
+  - match: ["hubspot", "pipedrive", "attio"]
+    category: sales-crm
+  - match: ["apollo", "clearbit", "zoominfo"]
+    category: sales-enrichment
+  - match: ["resend", "postmark", "mailgun", "sendgrid"]
+    category: marketing-email
+  - match: ["ghost", "webflow", "framer"]
+    category: marketing-cms
+  - match: ["ahrefs", "semrush"]
+    category: marketing-seo
+
+  # Customer service
+  - match: ["intercom", "helpscout", "front"]
+    category: support-tool
+
+  # Operations
+  - match: ["github"]
+    category: ops-source-control
+  - match: ["linear", "notion"]
+    category: ops-productivity
+  - match: ["1password", "okta"]
+    category: ops-security
+  - match: ["vanta", "drata"]
+    category: ops-compliance
+
+  # Finance
+  - match: ["stripe"]
+    category: payments-processor
+  - match: ["mercury", "brex"]
+    category: banking
+  - match: ["quickbooks", "bench", "xero"]
+    category: finance-accounting
+
+  # Founder
+  - match: ["transfer to checking", "owner draw"]
+    category: founder-draw
+
+  # Catch-all
+  - match: []  # explicit empty fallback
+    category: uncategorized
+
+alert_thresholds:
+  per_category_pct_increase_wow: 30
+  new_vendor_first_charge_above: 100
+  any_single_charge_above: 1000

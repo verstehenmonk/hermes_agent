@@ -1,0 +1,77 @@
+version: 1
+last_updated: "2026-05-21"
+
+firmographics:
+  company_type: B2B SaaS
+  employees_min: 50
+  employees_max: 500
+  arr_min: 5000000
+  arr_max: 50000000
+  industries:
+    - dev tools
+    - vertical SaaS
+    - fintech infra
+    - devops / observability
+    - HR tech
+  exclude_industries:
+    - consumer
+    - crypto trading
+    - gambling
+    - regulated healthcare PHI (until SOC2)
+
+buyer:
+  primary_titles:
+    - Head of Product
+    - VP Product
+    - Head of Growth
+    - Director of Product Analytics
+  champion_titles:
+    - Senior PM
+    - Growth Analyst
+    - Product Ops Manager
+  decision_maker_titles:
+    - VP Product
+    - CPO
+    - CEO (only at <100 person co)
+
+technographics:
+  must_have:
+    - Segment OR Rudderstack OR Snowplow (event source)
+    - Stripe (billing source)
+  nice_to_have:
+    - Mixpanel / Amplitude (we displace these)
+    - Redshift / Snowflake / BigQuery (we read from)
+  red_flags:
+    - Custom in-house analytics (won't switch)
+    - Looker as primary tool (we're not BI)
+
+triggers_to_buy:
+  - New CPO or VP Product hire in last 90 days
+  - Recent funding (Series A–C)
+  - Public mention of "missed quarter" / "missed target"
+  - Job posting for "data engineer" or "product analyst" >60 days open
+  - Public churn complaint (e.g., G2 review noting "couldn't get insights fast enough")
+  - Migrating off Mixpanel / Amplitude (pricing change reaction)
+
+disqualifiers:
+  - <20 employees (will churn at 12%/mo)
+  - >1000 employees (enterprise procurement we don't serve yet)
+  - Customer of a major competitor with multi-year contract
+  - Buyer has dedicated data team of 5+ (we're for teams without one)
+
+scoring:
+  hot_account:
+    employees: [50, 500]
+    arr: [10000000, 50000000]
+    has_recent_trigger: true
+    technographic_match: true
+  warm_account:
+    employees: [30, 800]
+    arr: [3000000, 80000000]
+    has_recent_trigger: false
+    technographic_match: true
+  cold_account:
+    employees: [30, 800]
+    arr: [3000000, 80000000]
+    has_recent_trigger: false
+    technographic_match: false

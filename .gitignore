@@ -70,3 +70,6 @@ mini-swe-agent/
 result
 website/static/api/skills-index.json
 models-dev-upstream/
+
+# business-os scripts: don't commit compiled cache
+skills/business-os/scripts/__pycache__/

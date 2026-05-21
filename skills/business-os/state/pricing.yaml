@@ -1,0 +1,77 @@
+version: 1
+last_updated: "2026-05-21"
+currency: USD
+
+plans:
+  starter:
+    monthly: 499
+    annual: 4990
+    annual_discount_pct: 16.7
+    limits:
+      events_per_month: 5000000
+      seats: 5
+      nl_queries_per_month: 500
+      data_retention_months: 6
+    target_segment: "Teams 50–150 evaluating their first AI analytics tool"
+    cogs_estimate_per_customer_per_month: 32
+
+  growth:
+    monthly: 1499
+    annual: 14990
+    annual_discount_pct: 16.7
+    limits:
+      events_per_month: 25000000
+      seats: 25
+      nl_queries_per_month: 2500
+      data_retention_months: 12
+    target_segment: "Teams 100–300 replacing Mixpanel / Amplitude"
+    cogs_estimate_per_customer_per_month: 78
+
+  scale:
+    monthly: 3999
+    annual: 39990
+    annual_discount_pct: 16.7
+    limits:
+      events_per_month: 100000000
+      seats: -1
+      nl_queries_per_month: 10000
+      data_retention_months: 24
+    target_segment: "Teams 200–500 with sophisticated needs, multi-product"
+    cogs_estimate_per_customer_per_month: 210
+
+  enterprise:
+    monthly: null
+    annual: null
+    custom: true
+    floor_acv: 60000
+    requires:
+      - SSO / SAML
+      - SOC2 (in progress — partner via Vanta)
+      - Custom DPA
+      - Dedicated CSM (currently founder; will revisit at 30 customers)
+
+discounts:
+  annual_default: 16.7
+  multi_year_2y: 25.0
+  multi_year_3y: 33.3
+  startup_program:
+    eligibility: "Series A or earlier, <50 employees"
+    discount_pct: 50
+    duration_months: 12
+    requires_logo: true
+  expansion_play:
+    eligibility: "Existing customer upgrading mid-cycle"
+    treatment: "Pro-rate + grandfather lower per-event cost"
+
+negotiation_floors:
+  starter_floor: 399
+  growth_floor: 1199
+  scale_floor: 3199
+  notes: "Never discount below floor without founder approval. Discounting depresses ACV more than it accelerates close rate (data: post-2026-01 cohort)."
+
+usage_overages:
+  events:
+    per_million_above_plan: 25
+  nl_queries:
+    per_query_above_plan: 0.50
+    notes: "Overage charges cap monthly at 2× plan price; above that, upsell to next tier."
