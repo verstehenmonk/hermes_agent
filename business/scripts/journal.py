@@ -46,7 +46,7 @@ def atomic_write(path: Path, content: str) -> None:
 def locked_append(path: Path, content: str) -> None:
     """Append with an exclusive fcntl lock so concurrent skills don't interleave."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a") as f:
+    with path.open("a", encoding="utf-8") as f:
         if fcntl is not None:
             fcntl.flock(f.fileno(), fcntl.LOCK_EX)
             try:
