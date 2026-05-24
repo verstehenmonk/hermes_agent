@@ -1,0 +1,15 @@
+{
+  "name": "linear-bug-incoming",
+  "events": ["Issue.create"],
+  "filters": {"data.labels.name": "bug"},
+  "source": "linear",
+  "personality": "head-of-customer-success",
+  "prompt": "A new Linear bug was filed: '{data.title}' (severity: {data.priorityLabel}). Cross-reference with any open CS tickets to identify which customers are affected. Post to #cs with: (1) one-line bug summary, (2) affected customers (by MRR), (3) draft proactive outreach replies for each affected customer (DRAFTS only — approval-gated per business/sops/_shared/approval-gate.md).",
+  "skills": ["linear", "notion", "himalaya"],
+  "enabled_toolsets": ["shell", "linear", "notion", "himalaya"],
+  "deliver": "slack:#cs",
+  "model": "anthropic:claude-sonnet-4-6",
+  "max_turns": 15,
+  "hmac_required": true,
+  "phase": "customer_success"
+}

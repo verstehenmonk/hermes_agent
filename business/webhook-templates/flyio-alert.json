@@ -1,0 +1,14 @@
+{
+  "name": "flyio-alert",
+  "events": ["alert"],
+  "source": "flyio_or_grafana",
+  "personality": "head-of-engineering",
+  "prompt": "Fly.io / Grafana alert fired. Alert name: {alert.name}. Severity: {alert.severity}. Description: {alert.description}. Run business/sops/engineering/incident.md from step 1. Acknowledge in #alerts within 60 seconds, open a Linear incident, triage with flyio-status, and post a status update.",
+  "skills": ["flyio-status", "linear", "github"],
+  "enabled_toolsets": ["shell", "flyio-status", "linear", "github"],
+  "deliver": "slack:#alerts",
+  "model": "anthropic:claude-sonnet-4-6",
+  "max_turns": 25,
+  "hmac_required": true,
+  "phase": "engineering"
+}

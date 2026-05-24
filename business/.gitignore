@@ -1,0 +1,8 @@
+# Never commit secrets or generated artifacts.
+.env
+*.env
+secrets/
+knowledge-base/finance/spend-*.csv
+knowledge-base/finance/cash.yaml
+knowledge-base/finance/close-history.md
+knowledge-base/cs/csat.yaml

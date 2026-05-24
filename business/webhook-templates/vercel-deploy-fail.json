@@ -1,0 +1,14 @@
+{
+  "name": "vercel-deploy-fail",
+  "events": ["deployment.error", "deployment.canceled"],
+  "source": "vercel",
+  "personality": "head-of-engineering",
+  "prompt": "Vercel deploy failed. Project: {payload.deployment.name}. Commit: {payload.deployment.meta.githubCommitSha}. Error: pull the build logs via vercel-deploys skill. Identify the failing step. If it's a known transient (network, npm registry hiccup): suggest a retry. If it's a real failure (build error, test fail, type error): identify the PR that introduced it via gh and post a failure summary to #alerts with: failing step, likely cause, and either retry-command or rollback-suggestion per business/sops/engineering/deploy-rollback.md.",
+  "skills": ["vercel-deploys", "github"],
+  "enabled_toolsets": ["shell", "vercel-deploys", "github"],
+  "deliver": "slack:#alerts",
+  "model": "anthropic:claude-sonnet-4-6",
+  "max_turns": 15,
+  "hmac_required": true,
+  "phase": "engineering"
+}

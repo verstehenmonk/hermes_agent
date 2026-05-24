@@ -1,0 +1,12 @@
+{
+  "name": "daily-eng-standup",
+  "schedule": "0 9 * * 1-5",
+  "personality": "head-of-engineering",
+  "prompt": "Produce the engineering standup for today. Follow the head-of-engineering personality and the structure described in your operating principles. Pull from GitHub (open PRs awaiting review, PRs merged in the last 24h) and Linear (issues moved to In Progress or Done). Note any CI failures or deploy issues. Keep it under 200 words. Read business/knowledge-base/runbook.md for context on what systems are critical. Post to #eng.",
+  "skills": ["github", "linear"],
+  "enabled_toolsets": ["shell", "github", "linear"],
+  "deliver": "slack:#eng",
+  "model": "anthropic:claude-sonnet-4-6",
+  "max_turns": 25,
+  "phase": "engineering"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "weekly-content-plan",
+  "schedule": "0 10 * * 1",
+  "personality": "head-of-marketing",
+  "prompt": "Scan the Notion 'Content Pipeline' database. Follow business/sops/marketing/content-pipeline.md weekly-cadence section. Post a 3-bullet plan to #marketing covering: (1) this week's publishes, (2) drafting focus, (3) pieces stuck > 7 days with a proposed unstick. All recommendations are DRAFTS — no auto-publish.",
+  "skills": ["notion", "xurl"],
+  "enabled_toolsets": ["shell", "notion", "xurl"],
+  "deliver": "slack:#marketing",
+  "model": "anthropic:claude-sonnet-4-6",
+  "max_turns": 20,
+  "phase": "marketing"
+}

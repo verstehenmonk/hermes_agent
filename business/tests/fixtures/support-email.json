@@ -1,0 +1,12 @@
+{
+  "event": "email.received",
+  "email": {
+    "from": "alex@example-customer.com",
+    "to": "support@yourdomain.com",
+    "subject": "CSV export is missing rows",
+    "received_at": "2026-05-24T14:32:00Z",
+    "body": "Hi! I just exported our weekly analytics to CSV and it's only showing 100 rows even though the dashboard shows 247. Is there a row limit I'm hitting? This is blocking our Monday report — any quick fix would be amazing.\n\nThanks,\nAlex\nHead of Data, Example Corp",
+    "label": "support",
+    "message_id": "<test-1@example-customer.com>"
+  }
+}

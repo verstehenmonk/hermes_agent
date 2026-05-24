@@ -1,0 +1,12 @@
+{
+  "name": "weekly-vendor-audit",
+  "schedule": "0 11 * * 1",
+  "personality": "head-of-ops",
+  "prompt": "Run business/sops/ops/renewal-review.md. Pull the Notion 'Vendors' database, compute days-to-renewal and cost trend per vendor, and post the three flag categories (renewing < 30d, cost increase > 10%, unused > 30d) to #ops. Each flagged item needs a one-line recommendation. The founder reacts with :renew:, :cancel:, or :downgrade: to drive next step.",
+  "skills": ["notion", "google-workspace"],
+  "enabled_toolsets": ["shell", "notion", "google-workspace"],
+  "deliver": "slack:#ops",
+  "model": "anthropic:claude-haiku-4-5-20251001",
+  "max_turns": 15,
+  "phase": "ops"
+}

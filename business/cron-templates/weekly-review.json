@@ -1,0 +1,12 @@
+{
+  "name": "weekly-review",
+  "schedule": "0 16 * * 5",
+  "personality": "chief-of-staff",
+  "prompt": "Produce the weekly founder briefing. Pull KPI deltas from business/knowledge-base/kpis.yaml. Scan Linear for issues that slipped sprint, stale issues > 14 days in 'In Progress', and the top 5 issues moving next week. Scan GitHub for PRs open > 7 days and PRs merged this week. Scan Notion for new specs in 'in-review'. Run the customer health check per business/sops/cs/health-check.md and include the red list. Produce a one-page briefing with three sections in this order: WINS, BLOCKERS, DECISIONS NEEDED. Each decision must be phrased as a binary choice with the recommendation. Post to #cos.",
+  "skills": ["kpi-rollup", "linear", "notion", "github"],
+  "enabled_toolsets": ["shell", "kpi-rollup", "linear", "notion", "github"],
+  "deliver": "slack:#cos",
+  "model": "anthropic:claude-opus-4-7",
+  "max_turns": 40,
+  "phase": "chief_of_staff"
+}

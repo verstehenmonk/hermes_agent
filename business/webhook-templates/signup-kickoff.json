@@ -1,0 +1,14 @@
+{
+  "name": "signup-kickoff",
+  "events": ["signup"],
+  "source": "app",
+  "personality": "head-of-customer-success",
+  "prompt": "New free-tier signup. Email: {signup.email}. Source: {signup.source}. Enrich the domain (company size, industry). Score ICP fit per business/knowledge-base/company.md. Log to Notion 'Customers' DB with tier=free. If ICP fit ≥ 3: draft a personalized welcome from the founder (DRAFT to #cs). If ICP fit < 3: a lighter generic welcome DRAFT. Recommend an onboarding path based on the source channel.",
+  "skills": ["notion"],
+  "enabled_toolsets": ["shell", "notion"],
+  "deliver": "slack:#cs",
+  "model": "anthropic:claude-haiku-4-5-20251001",
+  "max_turns": 12,
+  "hmac_required": true,
+  "phase": "customer_success"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "hourly-deploy-health",
+  "schedule": "0 * * * *",
+  "personality": "head-of-engineering",
+  "prompt": "Check production health. Hit the health endpoint listed in business/knowledge-base/runbook.md (curl, expect 200). Use the vercel-deploys skill to check the latest Vercel deploy state. Use the flyio-status skill to check Fly app status. If everything is green and there have been no incidents in the last hour, respond with exactly '[SILENT]' so Slack stays quiet. Otherwise post a one-paragraph status to #alerts with the failing component and what changed since the last check.",
+  "skills": ["vercel-deploys", "flyio-status"],
+  "enabled_toolsets": ["shell", "vercel-deploys", "flyio-status"],
+  "deliver": "slack:#alerts",
+  "model": "anthropic:claude-haiku-4-5-20251001",
+  "max_turns": 10,
+  "phase": "engineering"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "calendar-prep",
+  "schedule": "0 7,11,14,17 * * 1-5",
+  "personality": "chief-of-staff",
+  "prompt": "Pull the founder's Google Calendar events for the next 4 hours. For each event with an external attendee: identify who they are (cross-reference Notion 'Pipeline' or 'Customers' databases), summarize prior interactions, and produce a 2-line prep brief. For demos specifically, run the demo-prep SOP if not already done. Skip events that are internal/blocked-time. DM the founder via Slack with the consolidated prep — only if there are non-trivial external events; otherwise respond '[SILENT]'.",
+  "skills": ["google-workspace", "notion"],
+  "enabled_toolsets": ["shell", "google-workspace", "notion"],
+  "deliver": "slack:dm-founder",
+  "model": "anthropic:claude-haiku-4-5-20251001",
+  "max_turns": 15,
+  "phase": "chief_of_staff"
+}

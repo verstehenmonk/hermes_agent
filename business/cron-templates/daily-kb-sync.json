@@ -1,0 +1,12 @@
+{
+  "name": "daily-kb-sync",
+  "schedule": "0 6 * * *",
+  "personality": "head-of-product",
+  "prompt": "Mirror the designated Notion 'Company KB' database into business/knowledge-base/product-spec.md. Each page becomes a markdown section. Preserve the page hierarchy. Also mirror the 'Pricing' page into business/knowledge-base/pricing.md and the 'ICP' page into business/knowledge-base/icp.md. Overwrite the local files entirely (don't merge — Notion is source of truth). Do not post to Slack unless the sync fails — in that case post the failure to #product.",
+  "skills": ["notion"],
+  "enabled_toolsets": ["shell", "notion"],
+  "deliver": "local",
+  "model": "anthropic:claude-haiku-4-5-20251001",
+  "max_turns": 15,
+  "phase": "product"
+}
