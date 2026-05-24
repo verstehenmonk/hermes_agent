@@ -1,0 +1,12 @@
+{
+  "name": "daily-cs-triage",
+  "schedule": "30 8 * * 1-5",
+  "personality": "head-of-customer-success",
+  "prompt": "Triage all new mail in Gmail label 'support'. For each ticket, follow business/sops/cs/ticket-triage.md exactly. Every customer-facing reply must be emitted as a DRAFT per business/sops/_shared/approval-gate.md — never send. File bugs in Linear and feature requests in the Notion 'Feedback' database as you go. Post the full triage thread to #cs.",
+  "skills": ["himalaya", "linear", "notion"],
+  "enabled_toolsets": ["shell", "himalaya", "linear", "notion"],
+  "deliver": "slack:#cs",
+  "model": "anthropic:claude-sonnet-4-6",
+  "max_turns": 30,
+  "phase": "customer_success"
+}

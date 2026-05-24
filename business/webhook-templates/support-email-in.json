@@ -1,0 +1,15 @@
+{
+  "name": "support-email-in",
+  "events": ["email.received"],
+  "filters": {"label": "support"},
+  "source": "email_forwarder",
+  "personality": "head-of-customer-success",
+  "prompt": "A new support email arrived. From: {email.from}. Subject: '{email.subject}'. Body:\n\n{email.body}\n\nProcess per business/sops/cs/ticket-triage.md. Classify, score sentiment, route by type. Every customer-facing reply is a DRAFT in #cs per the approval-gate SOP. Never auto-send via himalaya.",
+  "skills": ["himalaya", "linear", "notion"],
+  "enabled_toolsets": ["shell", "himalaya", "linear", "notion"],
+  "deliver": "slack:#cs",
+  "model": "anthropic:claude-sonnet-4-6",
+  "max_turns": 20,
+  "hmac_required": true,
+  "phase": "customer_success"
+}

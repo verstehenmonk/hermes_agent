@@ -1,0 +1,14 @@
+{
+  "name": "stripe-new-customer",
+  "events": ["customer.subscription.created"],
+  "source": "stripe",
+  "personality": "head-of-customer-success",
+  "prompt": "A new paying customer just subscribed. Customer: {data.object.customer}. Plan: {data.object.items.data[0].price.nickname}. MRR contribution: {data.object.items.data[0].price.unit_amount}. Log them in the Notion 'Customers' database. Score ICP fit. Draft a personalized welcome email per business/sops/cs/health-check.md onboarding section (DRAFT to #cs — never auto-send). Recommend the onboarding path based on their plan tier.",
+  "skills": ["stripe-billing", "notion"],
+  "enabled_toolsets": ["shell", "stripe-billing", "notion"],
+  "deliver": "slack:#cs",
+  "model": "anthropic:claude-sonnet-4-6",
+  "max_turns": 15,
+  "hmac_required": true,
+  "phase": "customer_success"
+}

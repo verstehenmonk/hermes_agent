@@ -1,0 +1,23 @@
+{
+  "id": "evt_test_1",
+  "object": "event",
+  "api_version": "2024-12-18",
+  "created": 1715000000,
+  "type": "charge.failed",
+  "data": {
+    "object": {
+      "id": "ch_test_failed",
+      "object": "charge",
+      "amount": 49900,
+      "currency": "usd",
+      "customer": "cus_test_pro_customer",
+      "failure_code": "card_declined",
+      "failure_message": "Your card was declined.",
+      "status": "failed",
+      "metadata": {
+        "subscription_id": "sub_test_1",
+        "plan_nickname": "Pro Annual"
+      }
+    }
+  }
+}

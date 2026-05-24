@@ -1,0 +1,102 @@
+# North-star + per-department KPIs.
+# The kpi-rollup skill reads this to compose the weekly review.
+# Targets are aspirational. Sources tell the agent WHERE to read the actual value.
+
+version: 1
+
+north_star:
+  name: net_new_arr
+  target_monthly: 5000        # $5K net new ARR / month
+  source: stripe
+
+engineering:
+  - name: pr_cycle_time_hours
+    target: 24
+    source: github
+  - name: deploy_frequency_per_week
+    target: 5
+    source: vercel
+  - name: ci_pass_rate
+    target: 0.95
+    source: github
+  - name: escaped_bug_rate
+    target: 2                 # bugs reported by users / week
+    source: linear
+
+product:
+  - name: spec_coverage_pct
+    target: 0.80              # % of shipped features with a spec in Notion
+    source: notion
+  - name: feature_adoption_rate
+    target: 0.40              # % of active users using a feature within 14d of launch
+    source: telemetry
+  - name: time_from_feedback_to_spec_days
+    target: 7
+    source: notion
+
+marketing:
+  - name: signups_per_week
+    target: 50
+    source: app
+  - name: qualified_traffic
+    target: 5000              # weekly sessions from target ICP keywords
+    source: search_console
+  - name: content_published_per_week
+    target: 2
+    source: notion
+
+sales:
+  - name: pipeline_coverage_ratio
+    target: 3                 # pipeline value / quarterly target
+    source: notion
+  - name: win_rate
+    target: 0.30
+    source: notion
+  - name: demos_per_week
+    target: 5
+    source: google_calendar
+  - name: avg_sales_cycle_days
+    target: 21
+    source: notion
+
+ops:
+  - name: monthly_vendor_cost
+    target: 2000              # under $2K/mo total SaaS
+    source: notion
+  - name: audit_readiness_score
+    target: 90                # % of security checklist green
+    source: ops_checklist
+  - name: founder_meeting_load_hours
+    target: 15                # < 15h/week in meetings
+    source: google_calendar
+
+finance:
+  - name: runway_months
+    target: 18
+    source: cash_yaml
+  - name: mrr
+    target: 50000
+    source: stripe
+  - name: arr
+    target: 600000
+    source: stripe
+  - name: gross_margin_pct
+    target: 0.80
+    source: derived
+  - name: net_new_arr
+    target: 5000
+    source: stripe
+
+customer_success:
+  - name: time_to_first_response_minutes
+    target: 60                # within business hours
+    source: himalaya
+  - name: csat
+    target: 4.5               # 1-5 scale
+    source: survey
+  - name: gross_retention_pct
+    target: 0.95              # GRR
+    source: stripe
+  - name: net_retention_pct
+    target: 1.10              # NRR
+    source: stripe

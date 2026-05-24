@@ -1,0 +1,20 @@
+{
+  "type": "deployment.error",
+  "payload": {
+    "deployment": {
+      "id": "dpl_test_1",
+      "name": "analytics-app",
+      "url": "analytics-app-test.vercel.app",
+      "state": "ERROR",
+      "meta": {
+        "githubCommitSha": "abc123def456",
+        "githubCommitMessage": "Add CSV export for analytics dashboard",
+        "githubCommitAuthorName": "the-founder"
+      }
+    },
+    "project": {
+      "id": "prj_test_1",
+      "name": "analytics-app"
+    }
+  }
+}

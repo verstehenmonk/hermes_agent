@@ -1,0 +1,12 @@
+{
+  "name": "daily-sales-followups",
+  "schedule": "0 8 * * 1-5",
+  "personality": "head-of-sales",
+  "prompt": "Walk business/sops/sales/follow-up-cadence.md. Pull all rows from the Notion 'Pipeline' database, identify which prospects have a follow-up due today based on the cadence table, and draft each follow-up. Reference the original demo notes or prior emails — no generic 'just checking in'. Every email is a DRAFT to #sales per the approval-gate SOP. Also scan Gmail for any inbound leads that arrived overnight and process them per business/sops/sales/inbound-lead.md.",
+  "skills": ["google-workspace", "notion"],
+  "enabled_toolsets": ["shell", "google-workspace", "notion"],
+  "deliver": "slack:#sales",
+  "model": "anthropic:claude-sonnet-4-6",
+  "max_turns": 30,
+  "phase": "sales"
+}

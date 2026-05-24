@@ -1,0 +1,12 @@
+{
+  "name": "daily-burn-snapshot",
+  "schedule": "0 7 * * *",
+  "personality": "cfo",
+  "prompt": "Follow business/sops/finance/burn-report.md. Pull yesterday's MRR delta from Stripe (read-only key), yesterday's spend from the latest CSV in business/knowledge-base/finance/, and current cash from business/knowledge-base/finance/cash.yaml. Compute trailing-30 burn and runway. If no escalation triggers fire, emit '[SILENT]' so Slack stays quiet. Otherwise post the full report to #finance and DM the founder.",
+  "skills": ["stripe-billing", "kpi-rollup"],
+  "enabled_toolsets": ["shell", "stripe-billing", "kpi-rollup"],
+  "deliver": "slack:#finance",
+  "model": "anthropic:claude-haiku-4-5-20251001",
+  "max_turns": 15,
+  "phase": "finance"
+}

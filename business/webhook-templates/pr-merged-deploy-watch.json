@@ -1,0 +1,15 @@
+{
+  "name": "pr-merged-deploy-watch",
+  "events": ["pull_request.closed"],
+  "filters": {"merged": true, "base.ref": "main"},
+  "source": "github",
+  "personality": "head-of-engineering",
+  "prompt": "PR #{pull_request.number} '{pull_request.title}' just merged to main. Watch the resulting Vercel and Fly.io deploys for the next 10 minutes. Use vercel-deploys to track the build → preview → production promotion. Use flyio-status if Fly was redeployed. If both deploys succeed and the health endpoint returns 200, post a single 'deploy green' line to #eng. If anything fails, post a full status with the failing component and a rollback suggestion per business/sops/engineering/deploy-rollback.md.",
+  "skills": ["vercel-deploys", "flyio-status"],
+  "enabled_toolsets": ["shell", "vercel-deploys", "flyio-status"],
+  "deliver": "slack:#eng",
+  "model": "anthropic:claude-sonnet-4-6",
+  "max_turns": 15,
+  "hmac_required": true,
+  "phase": "engineering"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "monthly-close",
+  "schedule": "0 9 1 * *",
+  "personality": "cfo",
+  "prompt": "Run the monthly close per business/sops/finance/monthly-close.md. Pull previous month's Stripe revenue, latest spend CSV from business/knowledge-base/finance/, current cash from cash.yaml. Compute MRR walk, ARR, gross margin, churn %, NRR, runway. Post a single comprehensive report to #finance and append it to business/knowledge-base/finance/close-history.md.",
+  "skills": ["stripe-billing", "google-workspace", "kpi-rollup"],
+  "enabled_toolsets": ["shell", "stripe-billing", "google-workspace", "kpi-rollup"],
+  "deliver": "slack:#finance",
+  "model": "anthropic:claude-sonnet-4-6",
+  "max_turns": 30,
+  "phase": "finance"
+}

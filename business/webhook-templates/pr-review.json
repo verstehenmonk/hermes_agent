@@ -1,0 +1,14 @@
+{
+  "name": "pr-review",
+  "events": ["pull_request.opened", "pull_request.reopened", "pull_request.ready_for_review"],
+  "source": "github",
+  "personality": "head-of-engineering",
+  "prompt": "A new PR was opened: #{pull_request.number} '{pull_request.title}' by {pull_request.user.login} against {pull_request.base.ref}. Walk business/sops/engineering/pr-review.md exactly. Pre-flight checks first — abort with [BLOCKED] if any fail. Post the review as a GitHub comment AND cross-post a one-line summary with the verdict (APPROVE | REQUEST_CHANGES | COMMENT_ONLY) to #eng.",
+  "skills": ["github"],
+  "enabled_toolsets": ["shell", "github"],
+  "deliver": ["github_comment", "slack:#eng"],
+  "model": "anthropic:claude-sonnet-4-6",
+  "max_turns": 15,
+  "hmac_required": true,
+  "phase": "engineering"
+}

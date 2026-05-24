@@ -1,0 +1,15 @@
+{
+  "name": "calendar-meeting-soon",
+  "events": ["calendar.event.upcoming"],
+  "filters": {"minutes_before": 15},
+  "source": "google_calendar",
+  "personality": "chief-of-staff",
+  "prompt": "A Google Calendar event starts in 15 minutes. Event: '{event.summary}'. Attendees: {event.attendees}. Description: {event.description}. If it's an internal/blocked-time event, respond [SILENT]. Otherwise: identify the external attendee(s), pull prior interaction history from Notion 'Pipeline' or 'Customers', and DM the founder a 5-line prep brief: who, what they want, last touchpoint, prep done (if any prior demo-prep brief exists), recommended opener. If this is a demo and demo-prep was not run 24h ago, do an emergency abbreviated demo-prep now.",
+  "skills": ["google-workspace", "notion"],
+  "enabled_toolsets": ["shell", "google-workspace", "notion"],
+  "deliver": "slack:dm-founder",
+  "model": "anthropic:claude-haiku-4-5-20251001",
+  "max_turns": 15,
+  "hmac_required": false,
+  "phase": "chief_of_staff"
+}

@@ -1,0 +1,49 @@
+# Hermes Business OS manifest.
+# Toggles which phase is active. bootstrap.sh reads this to decide what to install.
+
+version: 1
+business:
+  name: ""              # fill in: e.g. "Acme Analytics"
+  domain: ""            # fill in: e.g. "acmeanalytics.com"
+  primary_channel: slack
+  timezone: America/Los_Angeles
+
+phases:
+  # Flip to true as you roll each phase out.
+  engineering: true
+  customer_success: false
+  product: false
+  sales: false
+  marketing: false
+  finance: false
+  ops: false
+  chief_of_staff: true
+
+personalities:
+  - chief-of-staff
+  - head-of-engineering
+  - head-of-product
+  - head-of-marketing
+  - head-of-sales
+  - head-of-ops
+  - cfo
+  - head-of-customer-success
+
+# Map a personality to the Slack channel it posts into.
+# Override in slack/channels.yaml if you need finer control.
+channels:
+  chief-of-staff: "#cos"
+  head-of-engineering: "#eng"
+  head-of-product: "#product"
+  head-of-marketing: "#marketing"
+  head-of-sales: "#sales"
+  head-of-ops: "#ops"
+  cfo: "#finance"
+  head-of-customer-success: "#cs"
+  alerts: "#alerts"
+
+# Per-cadence model pinning. Override in individual cron-template files.
+default_models:
+  monitor: anthropic:claude-haiku-4-5-20251001
+  triage: anthropic:claude-sonnet-4-6
+  review: anthropic:claude-opus-4-7

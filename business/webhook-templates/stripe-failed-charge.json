@@ -1,0 +1,14 @@
+{
+  "name": "stripe-failed-charge",
+  "events": ["charge.failed", "invoice.payment_failed"],
+  "source": "stripe",
+  "personality": "cfo",
+  "prompt": "A Stripe charge failed. Event: {event.type}. Customer: {data.object.customer}. Amount: {data.object.amount}. Failure code: {data.object.failure_code}. Pull the customer's full Stripe state (read-only) and recent activity. Pull their CS health score from business/knowledge-base/. Post to #finance: (1) account size (MRR), (2) failure reason, (3) recommended action: silent-retry | dunning sequence | personal outreach. If MRR > $500, also DM the founder and draft a personal outreach email per business/sops/_shared/approval-gate.md.",
+  "skills": ["stripe-billing", "notion"],
+  "enabled_toolsets": ["shell", "stripe-billing", "notion"],
+  "deliver": "slack:#finance",
+  "model": "anthropic:claude-sonnet-4-6",
+  "max_turns": 15,
+  "hmac_required": true,
+  "phase": "finance"
+}

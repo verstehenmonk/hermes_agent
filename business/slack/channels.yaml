@@ -1,0 +1,44 @@
+# Slack channel topology for Hermes Business OS.
+# Created by you in Slack first; bootstrap.sh verifies these exist.
+
+channels:
+  # Per-department channels
+  "#eng":
+    personality: head-of-engineering
+    purpose: PR reviews, deploy notifications, incident response
+  "#product":
+    personality: head-of-product
+    purpose: Spec drafts, issue triage, roadmap updates
+  "#marketing":
+    personality: head-of-marketing
+    purpose: Content pipeline, launch drafts (approval-gated)
+  "#sales":
+    personality: head-of-sales
+    purpose: Pipeline updates, demo prep, follow-up drafts (approval-gated)
+  "#ops":
+    personality: head-of-ops
+    purpose: Vendor renewals, security checklist, calendar protection
+  "#finance":
+    personality: cfo
+    purpose: Burn snapshots, monthly close, billing events
+  "#cs":
+    personality: head-of-customer-success
+    purpose: Ticket triage, reply drafts (approval-gated), customer health
+
+  # Cross-functional channels
+  "#cos":
+    personality: chief-of-staff
+    purpose: Weekly review, cross-dept decisions, founder DMs
+  "#alerts":
+    personality: head-of-engineering
+    purpose: Production alerts, hourly deploy health (silent unless red)
+
+# Reactions the bot listens for in approval-gated channels
+reactions:
+  approve: ":approve:"
+  approve_bulk: ":approve-bulk:"
+  discard: ":discard:"
+
+# Direct messages
+dm:
+  founder: true   # The chief-of-staff DMs the founder for prep briefs and escalations

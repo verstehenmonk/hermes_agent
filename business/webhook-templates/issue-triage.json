@@ -1,0 +1,14 @@
+{
+  "name": "issue-triage",
+  "events": ["issues.opened"],
+  "source": "github",
+  "personality": "head-of-product",
+  "prompt": "GitHub issue #{issue.number} '{issue.title}' opened by {issue.user.login}. Classify per business/sops/product/bug-triage.md: bug | feature-request | docs | wontfix. If bug: file a Linear issue with severity and link both ways. If feature-request: add to Notion 'Feedback' DB with the verbatim quote and use case. If docs: open a Notion docs task. If wontfix: post the rationale as a GitHub comment. Post a one-line summary to #product with the classification.",
+  "skills": ["github", "linear", "notion"],
+  "enabled_toolsets": ["shell", "github", "linear", "notion"],
+  "deliver": "slack:#product",
+  "model": "anthropic:claude-sonnet-4-6",
+  "max_turns": 15,
+  "hmac_required": true,
+  "phase": "product"
+}
