@@ -1,0 +1,141 @@
+# Declarative cron jobs for the business operating system.
+# Apply with: business/install.sh
+#
+# Notes for the installer:
+# - `script:` values are relative paths within ~/.hermes/scripts/. The
+#   installer copies business/scripts/*.py into ~/.hermes/scripts/business/
+#   before creating the jobs (Hermes blocks scripts outside that directory).
+# - Hermes cron `--script` does NOT accept arguments. Where we want a
+#   variant run, the script reads env vars (e.g. INBOX_WINDOW_HOURS) or
+#   self-detects calendar state (e.g. metrics_snapshot writes the monthly
+#   archive automatically on the 1st of the month).
+# - `[SILENT]` in the prompt is the documented way to suppress delivery
+#   when the agent has nothing to report. There is no `--silent-on` flag.
+
+jobs:
+
+  - name: "Daily metrics snapshot"
+    schedule: "20 7 * * 1-5"  # 07:20 weekdays
+    prompt: "[SILENT]"
+    script: "business/metrics_snapshot.py"
+    deliver: "telegram"
+
+  - name: "Inbox triage snapshot"
+    schedule: "25 7 * * 1-5"
+    prompt: "[SILENT]"
+    script: "business/inbox_digest.py"
+    deliver: "telegram"
+
+  - name: "Daily brief"
+    schedule: "30 7 * * 1-5"  # 07:30 weekdays
+    prompt: |
+      Run the daily standup ritual. Read business/rituals/daily-standup.md
+      and follow it exactly. Read business/CHARTER.md and
+      business/north-star.md for context. Read
+      ~/.hermes/business/metrics/latest.json for numbers and
+      ~/.hermes/business/inbox/latest.json for inbox state.
+      Compare to yesterday's standup at
+      ~/.hermes/business/journal/<yesterday>-standup.md if present.
+      Archive your output via:
+        ~/.hermes/scripts/business/journal.py standup
+    skills: ["ceo"]
+    deliver: "telegram"
+
+  - name: "Inbox sweep"
+    schedule: "0 10-17/2 * * 1-5"  # every 2h, 10:00–16:00 weekdays
+    prompt: |
+      Read ~/.hermes/business/inbox/latest.json (the inbox digest cron job
+      refreshes it on its own schedule). For each item in the 'customer'
+      and 'sales' buckets, load the matching department skill and act per
+      its triage rubric. If something genuinely needs founder attention,
+      surface a concise note. If nothing does, respond with exactly
+      [SILENT] (and nothing else) to suppress delivery.
+    skills: ["customer-success", "sales"]
+    deliver: "telegram"
+
+  - name: "End-of-day wrap"
+    schedule: "0 18 * * 1-5"
+    prompt: |
+      Brief end-of-day note: what shipped today (GitHub PRs merged, content
+      published, deals closed), what slipped (open PRs > 24h, open P1s),
+      and what tomorrow's pre-loaded priorities should be.
+      Keep it under 8 lines. If genuinely nothing changed, respond [SILENT].
+    skills: ["ceo"]
+    deliver: "telegram"
+
+  - name: "Weekly review"
+    schedule: "0 16 * * 5"  # Friday 16:00
+    prompt: |
+      Run the weekly review ritual. Read business/rituals/weekly-review.md
+      and follow it exactly. Read CHARTER, north-star, every department brief,
+      and the past week's standup journals from
+      ~/.hermes/business/journal/. Call each department skill in sequence
+      and assemble the email. Archive via:
+        ~/.hermes/scripts/business/journal.py weekly
+    skills: ["ceo", "engineering", "product", "marketing", "sales", "customer-success", "finance", "operations", "legal"]
+    deliver: "email"
+
+  - name: "Monday kickoff"
+    schedule: "0 9 * * 1"
+    prompt: |
+      Short Monday kickoff. State the three bets for the week (sliced from
+      the quarter's bets in CHARTER), then list this week's commitments
+      from the calendar. Keep under 10 lines.
+    skills: ["ceo", "operations"]
+    deliver: "telegram"
+
+  - name: "Monthly close"
+    schedule: "0 9 1 * *"
+    prompt: |
+      Run the monthly close ritual. Read business/rituals/monthly-close.md
+      and follow it. The daily metrics_snapshot.py auto-archives the
+      previous month into ~/.hermes/business/metrics/<YYYY-MM>.json on the
+      1st, so the data is already on disk. Archive your output via:
+        ~/.hermes/scripts/business/journal.py monthly
+    skills: ["ceo", "finance", "product", "engineering", "marketing"]
+    deliver: "email"
+
+  - name: "Quarterly OKR review"
+    # Every Monday at 09:00 in Jan/Apr/Jul/Oct. The prompt + the quarterly
+    # script gate exit early on non-first-Monday runs by emitting [SILENT].
+    # (Cron's day-of-month and day-of-week fields are OR-ed in standard cron,
+    # so we can't express "1st Monday of month" purely in the schedule.)
+    schedule: "0 9 * 1,4,7,10 1"
+    prompt: |
+      Today must be the FIRST Monday of the quarter. Run
+      `date +%d` mentally — if the day-of-month is greater than 7, respond
+      with exactly [SILENT] and stop. Otherwise run the quarterly OKR
+      ritual in business/rituals/quarterly-okrs.md. Do NOT modify
+      CHARTER.md — only draft the proposed next quarter.
+    skills: ["ceo"]
+    deliver: "email"
+
+  - name: "Vendor audit"
+    schedule: "0 10 2 * *"  # 2nd of month, 10:00
+    prompt: |
+      Pull last month's Mercury transactions. Cross-reference against the
+      Notion 'Vendor Registry'. Flag: unaccounted charges, vendors with
+      last_used > 60d, and any vendor whose monthly charge grew > 25%.
+      Output a one-page memo with a recommendation per row.
+    skills: ["operations", "finance"]
+    deliver: "email"
+
+  - name: "Quarterly compliance check"
+    schedule: "0 10 15 1,4,7,10 *"  # mid-quarter
+    prompt: |
+      Run the legal department's quarterly compliance check (see brief).
+      Cover: contracts up for renewal in 90d, sub-processors list current,
+      DSAR queue health, SOC 2 evidence gaps, open security advisories,
+      ToS/PP age. Output a checklist + flagged items.
+    skills: ["legal", "engineering"]
+    deliver: "email"
+
+  - name: "Runway health check"
+    schedule: "0 9 * * 1"  # Monday morning, before kickoff
+    prompt: |
+      Read ~/.hermes/business/metrics/latest.json. If runway_months < 6,
+      page the founder with a P1 Telegram message: current runway, recent
+      burn trend, and three concrete suggestions (in priority order).
+      Otherwise respond with exactly [SILENT].
+    skills: ["finance", "ceo"]
+    deliver: "telegram"

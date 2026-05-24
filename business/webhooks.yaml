@@ -1,0 +1,138 @@
+# Declarative webhook subscriptions for the business operating system.
+# Apply with: business/install.sh
+#
+# Notes:
+# - `hermes webhook subscribe` accepts a single comma-separated `--events`
+#   string and a single comma-separated `--skills` string. There are no
+#   --source / --filter flags; route ergonomics live inside the prompt.
+# - For PR comments, deliver via `--deliver telegram` (and post the comment
+#   from inside the skill using the gh CLI); there is no `deliver: github`
+#   target.
+# - Prompt placeholders use {dot.notation} against the raw payload. We bind
+#   to the documented Stripe / GitHub / Linear / Cal payload shapes.
+
+webhooks:
+
+  - name: "stripe-failed-payment"
+    events: ["invoice.payment_failed", "charge.dispute.created"]
+    prompt: |
+      Stripe event: {type}
+      Customer: {data.object.customer}
+      Amount due (cents): {data.object.amount_due}
+      Amount remaining (cents): {data.object.amount_remaining}
+      Dispute amount (cents, if dispute): {data.object.amount}
+
+      Run the finance skill's failed-payment playbook:
+      1. Look up the customer in Stripe + Attio.
+      2. Attempt retry once via Stripe (only for invoice.payment_failed).
+      3. If still failed, draft a personal email from founder to customer.
+      4. If amount > CHARTER spending authority, page founder on Telegram.
+      Log to ~/.hermes/business/journal/finance/payment-failures.md
+    skills: ["finance", "customer-success"]
+    deliver: "telegram"
+
+  - name: "stripe-churn"
+    events: ["customer.subscription.deleted"]
+    prompt: |
+      Subscription cancelled: customer {data.object.customer},
+      subscription {data.object.id}.
+
+      Run the customer-success churn playbook:
+      1. Pull the subscription's items+price details via Stripe to identify
+         the plan (data.object.items.data[0].price.id / .nickname).
+      2. Pull last 90d of the customer's events from PostHog and tickets from Plain.
+      3. Categorize the likely reason.
+      4. Draft a thoughtful exit-interview email (from founder, not templated).
+      5. Append to the churn log:
+         ~/.hermes/scripts/business/journal.py decision \
+           --title "churn: {data.object.customer}" --review-in 60
+    skills: ["customer-success", "product"]
+    deliver: "telegram"
+
+  - name: "sentry-error-spike"
+    events: ["event_alert", "issue_alert"]
+    prompt: |
+      Sentry alert: {data.issue.title}
+      Project: {data.project.name}  Level: {data.issue.level}
+      Count: {data.issue.count}  Users affected: {data.issue.userCount}
+
+      Engineering triage:
+      1. Pull the issue from Sentry. Read the stack trace.
+      2. Check if there's a recent deploy that could have caused it.
+      3. If user-facing and rate > 1%, page founder. Otherwise file Linear issue.
+      4. Surface the suspected fix if the cause is obvious.
+    skills: ["engineering"]
+    deliver: "telegram"
+
+  - name: "github-pr-opened"
+    events: ["pull_request"]
+    prompt: |
+      Only act when {action} is "opened" or "reopened" — otherwise respond [SILENT].
+
+      PR #{pull_request.number} by {pull_request.user.login}: {pull_request.title}
+      Repo: {repository.full_name}
+
+      Engineering review:
+      1. Check the diff against the engineering brief's tech principles.
+      2. Reject auto-merge if it touches auth, billing, or migrations — surface for human review.
+      3. Suggest improvements. Do NOT block on style.
+      4. Run tests via `gh pr checks {pull_request.number}` if available.
+      5. Post the review comment by shelling out to:
+           gh pr review {pull_request.number} -R {repository.full_name} \
+             --comment -b "<your review>"
+    skills: ["engineering"]
+    deliver: "telegram"
+
+  - name: "linear-customer-blocker"
+    events: ["Issue"]
+    prompt: |
+      Linear issue event. Only act when the issue carries the "customer-blocker"
+      label (check {data.labels[*].name}). If it doesn't, respond [SILENT].
+
+      Title: {data.title}
+      URL:   {data.url}
+
+      Page founder with: customer name, what they can't do, suggested fix or owner.
+    skills: ["customer-success", "engineering"]
+    deliver: "telegram"
+
+  - name: "cal-booking-created"
+    events: ["BOOKING_CREATED"]
+    prompt: |
+      New booking with {payload.attendees[0].email} on {payload.startTime}.
+
+      Sales pre-brief:
+      1. Look up the attendee's company in Attio. Enrich via public sources if unknown.
+      2. Pull any prior interactions (Plain tickets, emails, content reads in PostHog).
+      3. Score against the sales qualification rubric.
+      4. Draft a one-page demo plan: what to show, what to ask, where they probably are in the buying cycle.
+      5. Email the brief to the founder 30 min before the call.
+    skills: ["sales"]
+    deliver: "email"
+
+  - name: "posthog-new-paid-signup"
+    events: ["subscription_started"]
+    prompt: |
+      New paid signup: workspace {properties.workspace_id} on {properties.plan}.
+
+      Customer success kickoff:
+      1. Drop them into the Loops "new-customer-day-0" sequence.
+      2. Schedule a 30-day check-in via Cal.com (founder calendar, optional accept).
+      3. Add to Attio as a customer (not a lead).
+      4. Surface to founder if plan = Business or above.
+    skills: ["customer-success"]
+    deliver: "telegram"
+
+  - name: "plain-support-p1"
+    events: ["thread.created", "thread.updated"]
+    prompt: |
+      Plain thread event. Only act when {data.priority} == "P1" — otherwise
+      respond [SILENT].
+
+      From: {data.customer.email}  Title: {data.title}
+
+      Read the CS brief's triage rubric. Acknowledge to customer in < 10 min,
+      open a Linear issue with customer-blocker label if engineering-needed,
+      page founder via Telegram.
+    skills: ["customer-success", "engineering"]
+    deliver: "telegram"
